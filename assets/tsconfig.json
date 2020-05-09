@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "commonjs",
+    "baseUrl": ".",
+    "paths": {
+      "*": ["js/*"]
+    },
+    "esModuleInterop": true,
+    "noImplicitAny": true,
+    "jsx": "react",
+    "types": ["node", "webpack-env"],
+    "strict": true
+  },
+  "include": ["js"]
+}
