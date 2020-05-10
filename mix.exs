@@ -45,7 +45,10 @@ defmodule HaproxyPlayground.MixProject do
       {:gettext, "~> 0.11"},
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
-      {:live_data, path: "../live_data"}
+      {:live_data, path: "../live_data"},
+      {:mint, "~> 1.0"},
+      {:tesla, "~> 1.3"},
+      {:exexec, "~> 0.2.0"}
     ]
   end
 

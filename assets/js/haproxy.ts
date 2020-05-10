@@ -1,5 +1,5 @@
 export type State = {
-  who: string
+  config: string
 }
 
 export type Actions = {

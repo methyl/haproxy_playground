@@ -5,13 +5,14 @@ import React, {
   useMemo,
   useContext,
   useReducer,
+  useRef,
 } from 'react'
-import { Socket } from 'phoenix'
+import { Socket, Channel } from 'phoenix'
 import { v4 as uuidv4 } from 'uuid'
 const { applyPatch } = require('fast-json-patch')
 
 export const useSocket = () => {
-  const [socket, setSocket] = useState(null)
+  const [socket, setSocket] = useState<Socket | null>(null)
 
   useEffect(() => {
     const socket = new Socket('/live_data_socket')
@@ -23,42 +24,44 @@ export const useSocket = () => {
 }
 
 export const useLiveData = <S, A>(
-  socket,
-  component,
+  socket: Socket,
+  component : string,
   defaultState = null,
-  id = uuidv4(),
+  id = null,
   params = {}
 ) => {
-  const [channel, setChannel] = useState(null)
+  // const idRef = useRef(id || uuidv4());
+  const [channel, setChannel] = useState<Channel | null>(null)
   const [state, dispatchDiff] = useReducer(
-    (state, { diff }) =>
+    (state: S, { diff }: any) =>
       applyPatch(state || {}, diff, false, false).newDocument,
     defaultState
   )
 
   useEffect(() => {
-    let channel
+    let channel: Channel
+    let ref: number
     if (socket) {
       channel = socket.channel(`${component}:${id}`, params)
       channel.join()
-      channel.on('diff', dispatchDiff)
+      ref = channel.on('diff', dispatchDiff)
       setChannel(channel)
     }
 
     return () => {
       if (channel) {
-        channel.off('diff', dispatchDiff)
+        channel.off('diff', ref)
         channel.leave()
       }
     }
-  }, [socket, JSON.stringify(params)])
+  }, [socket, id, JSON.stringify(params)])
 
   return [
     state,
-    (msg, params) => {
+    ((msg, params) => {
       return new Promise((resolve) => {
         channel.push(msg, params).receive('ok', resolve)
       })
-    },
+    }) as A,
   ] as [S | null, A]
 }
